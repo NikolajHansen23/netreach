@@ -1,0 +1,30 @@
+{
+  "name": "netreach",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx esbuild ./src/main.ts --bundle --platform=node --outfile=dist/main.cjs",
+    "start": "cd src && ts-node ./main.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "bin": "dist/main.cjs",
+  "pkg": {
+    "assets": "data/**/*",
+    "outputPath": "dist"
+  },
+  "dependencies": {
+    "@types/node": "^18.15.11",
+    "dotenv": "^16.0.3",
+    "levenshtein-edit-distance": "^3.0.1",
+    "node-fetch": "^3.3.1",
+    "ora": "^5.4.1",
+    "pkg": "^5.8.1",
+    "puppeteer": "^20.2.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4",
+    "xlsx": "^0.18.5"
+  }
+}
