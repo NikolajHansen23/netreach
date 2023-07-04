@@ -8,7 +8,7 @@ dotenv.config();
 
 const full = process.env?.mode === "full"
 const RANGE = 1000;
-const RANDOM_COEF = full ? 1 : 0.1
+const RANDOM_COEF = full ? 1 : 1
 const ConcurrencyStep = 1;
 const Timeout = 7.5
 let output = ''
@@ -66,48 +66,54 @@ const buildLink = (website: string) => {
 let totalWeight = 0;
 let accessibleWeight = 0;
 
-const calculateAccessibilityPercentage = async (
-  websites: ImportedWebsite[]
-): Promise<number> => {
-
-  const browser = await puppeteer.launch({headless: 'new', args: ['--no-sandbox']});
-  const execQueue: any[] = [] 
-
+const getExecutionQueue = (
+  websites: ImportedWebsite[],
+  browser: Browser,
+) => {
+  
+  const execQueue = [] 
+  
   for (let j = 0; j < websites.length; j = j + ConcurrencyStep) {
-    const executionArray : any[] = [];
+    const executionArray = [];
     for (let i = 0; i < ConcurrencyStep && i + j < websites.length; i++) {
       const index = i + j;
       const {url, rank} = websites[index]
       totalWeight += rank;
       executionArray.push(
         () => isWebsiteAccessible(browser, buildLink(url), rank, index)
-      );
+        );
+      }
+      execQueue.push(executionArray)
     }
-    execQueue.push(executionArray)
-  }
-
-  const shuffeledExecQueue = shuffleArray(execQueue)
-  for (let i = 0; i < shuffeledExecQueue.length; i++) {
-    await Promise.allSettled(shuffeledExecQueue[i].map((item: any) => item()))
-  }
-  browser.close()
-  return (accessibleWeight / totalWeight) * 100;
+    
+  return shuffleArray(execQueue)
+  
 };
+
 
 const main = async () => {
   const start = Date.now();
+  let websitesScanned = 0
   const websites : ImportedWebsite[] = await importWebsites(RANGE - 1, RANDOM_COEF);
-  const eta = estimateTime(websites.length, ConcurrencyStep, Timeout)
-  console.log("Estimated Time:", eta, "Seconds")
+  // const eta = estimateTime(websites.length, ConcurrencyStep, Timeout)
+  const browser = await puppeteer.launch({headless: 'new', args: ['--no-sandbox']});
+  
+  const shuffledExecutionQueue = getExecutionQueue(websites, browser)
+
   setInterval(() => {
-    const now = Date.now()
-    const percent = Math.floor((now - start) / eta / 10)
+    const percent = Math.floor(websitesScanned / websites.length * 100)
+    if (percent === 100) spinner.clear()
     spinner.text = `Running: ${percent}%`;
-    // spinner.spinner = 'moon';
   }, 500);
-  const accessibilityPercentage = await calculateAccessibilityPercentage(
-    websites
-  );
+  
+  for (const job of shuffledExecutionQueue) {
+    await Promise.allSettled(job.map((item) => item()))
+    websitesScanned += job.length
+  }
+
+  browser.close()
+
+  const accessibilityPercentage = (accessibleWeight / totalWeight) * 100;
   const end = Date.now();
   console.log("Scan done in", (end - start) / 1000 / 60, "minutes");
   console.log(
@@ -116,6 +122,7 @@ const main = async () => {
   writeToFile('../output', 'scan', output)
   console.log("Check output folder for the detailed result.")
   spinner.stop()
+  process.exit()
 };
 
 main();
