@@ -13,5 +13,5 @@ export const writeToFile = (directoryPath: string, fileName: string, data: strin
   }
 
   // Write to file
-  fs.writeFileSync(`${directoryPath}/${fileName}`, data);
+  fs.writeFileSync(`${directoryPath}/${fileName}.txt`, data);
 }

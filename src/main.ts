@@ -1,37 +1,54 @@
 import { ImportedWebsite, importWebsites } from "./import";
 import dotenv from 'dotenv';
-import ora from 'ora';
 import { performGetRequest } from "./puppeteer-fetch";
 import puppeteer, { Browser } from "puppeteer";
 import { composeOutput, writeToFile } from "./export";
-dotenv.config();
+import path from "path";
+import cliProgress from 'cli-progress'
 
-const full = process.env?.mode === "full"
-const RANGE = 1000;
-const RANDOM_COEF = full ? 1 : 1
-const ConcurrencyStep = 1;
-const Timeout = 7.5
-let output = ''
+const argv = require('minimist')(process.argv.slice(2));
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
-// const DEBUG = false;
-
-
-const spinner = ora({text: '', spinner: 'moon', color: 'yellow'}).start();
-
-
-const problemMakers : any = {}
-
-const estimateTime = (length: number, concurrency: number, timeout: number) => {
-  console.log(length, concurrency, timeout)
-  const seconds = Math.ceil((length / concurrency) * timeout);
-  return seconds;
+interface Params {
+  Full: boolean,
+  Timeout: number,
+  RandomCoeff: number,
+  ConcurrencyStep: number,
+  Range: number,
 }
+
+const loadEnv = (env: Record<string, string>) : Params => {
+  let {Range, RandomCoeff, ConcurrencyStep, Timeout, Full}  = env
+
+  const result : Params = {
+    Range: Number(Range),
+    RandomCoeff: Full === "true" ? 1 : Number(RandomCoeff),
+    ConcurrencyStep: Number(ConcurrencyStep),
+    Timeout: Number(Timeout),
+    Full: Full === "true" ? true : false
+  }
+
+  return result
+}
+
+// create a new progress bar instance and use shades_classic theme
+const bar1 = new cliProgress.SingleBar({ 
+  clearOnComplete: true,
+  hideCursor: true,
+  format: '[{bar}] {percentage}% | ETA: {eta}s',
+}, cliProgress.Presets.shades_classic);
+
+// start the progress bar with a total value of 200 and start value of 0
+bar1.start(100, 0);
+
+const {Range, Timeout, ConcurrencyStep, RandomCoeff, Full} = loadEnv({...process.env, ...argv})
+
+let output = ''
 
 const isWebsiteAccessible = async (
   browser: Browser,
   url: string,
   rank: number,
-  index: number
 ): Promise<boolean> => {
   try {
 
@@ -41,9 +58,6 @@ const isWebsiteAccessible = async (
     return true;
   } catch (e: any) {
     output = composeOutput(`${url}: ✘`, output)
-    if (problemMakers[url]) {
-      problemMakers[url] = problemMakers[url] + 1
-    } else problemMakers[url] = 1
     return false;
   }
 };
@@ -80,7 +94,7 @@ const getExecutionQueue = (
       const {url, rank} = websites[index]
       totalWeight += rank;
       executionArray.push(
-        () => isWebsiteAccessible(browser, buildLink(url), rank, index)
+        () => isWebsiteAccessible(browser, buildLink(url), rank)
         );
       }
       execQueue.push(executionArray)
@@ -94,17 +108,15 @@ const getExecutionQueue = (
 const main = async () => {
   const start = Date.now();
   let websitesScanned = 0
-  const websites : ImportedWebsite[] = await importWebsites(RANGE - 1, RANDOM_COEF);
-  // const eta = estimateTime(websites.length, ConcurrencyStep, Timeout)
+  const websites : ImportedWebsite[] = await importWebsites(Range - 1, RandomCoeff);
   const browser = await puppeteer.launch({headless: 'new', args: ['--no-sandbox']});
   
   const shuffledExecutionQueue = getExecutionQueue(websites, browser)
 
-  setInterval(() => {
+  const interval = setInterval(() => {
     const percent = Math.floor(websitesScanned / websites.length * 100)
-    if (percent === 100) spinner.clear()
-    spinner.text = `Running: ${percent}%`;
-  }, 500);
+    bar1.update(percent);
+  }, Timeout * 1000);
   
   for (const job of shuffledExecutionQueue) {
     await Promise.allSettled(job.map((item) => item()))
@@ -115,14 +127,15 @@ const main = async () => {
 
   const accessibilityPercentage = (accessibleWeight / totalWeight) * 100;
   const end = Date.now();
+  bar1.stop();
+  clearInterval(interval)
   console.log("Scan done in", (end - start) / 1000 / 60, "minutes");
   console.log(
     `Percentage of accessible websites: ${accessibilityPercentage.toFixed(2)}%`
     );
-  writeToFile('../output', 'scan', output)
-  console.log("Check output folder for the detailed result.")
-  spinner.stop()
-  process.exit()
+  output = composeOutput(`Percentage of accessible websites: ${accessibilityPercentage.toFixed(2)}%`, output)
+  writeToFile('../output', `scan-${Date.now()}`, output)
+  console.log("Check the output folder for the detailed result.")
 };
 
 main();
