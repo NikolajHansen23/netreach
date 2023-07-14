@@ -109,7 +109,8 @@ const main = async () => {
   const start = Date.now();
   let websitesScanned = 0
   const websites : ImportedWebsite[] = await importWebsites(Range - 1, RandomCoeff);
-  const browser = await puppeteer.launch({headless: 'new', args: ['--no-sandbox']});
+  // @ts-ignore
+  const browser = await puppeteer.launch({headless: "old", args: ['--no-sandbox']});
   
   const shuffledExecutionQueue = getExecutionQueue(websites, browser)
 
