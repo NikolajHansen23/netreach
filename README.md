@@ -86,17 +86,17 @@ Sharing your test results in the results thread is also a great way to help us b
 
 ## Parameters
 
-RandomCoeff: `RandomCoeff` controls how big our sample size can be. 1 means all websites are included, 0.5 means a random sample of 50% of websites chosen, and so on. You can control this parameter either in the .env file at the root of the project or as an argument:
+**RandomCoeff**: `RandomCoeff` controls how big our sample size can be. 1 means all websites are included, 0.5 means a random sample of 50% of websites chosen, and so on. You can control this parameter either in the .env file at the root of the project or as an argument:
 
 `npm run start -- --RandomCoeff=0.3`
 
-By default, RandomCoeff is 0.1.
+**By default, RandomCoeff is 0.1.**
 
-Timeout: `Timeout` specifies how long you would wait at maximum to reach a website. By default, Timeout is 7.5s.
+**Timeout**: `Timeout` specifies how long you would wait at maximum to reach a website. **By default, Timeout is 7.5s**.
 
 ## Common Errors
 
-"Error: Could not find Chromium..."
+`Error: Could not find Chromium...`
 
 You can install Chrome manually by running `node node_modules/puppeteer/install.js`
 
