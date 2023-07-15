@@ -82,7 +82,7 @@ Although you might be using a VPN or an uncensored internet, you still might fai
 
 First, thank you for using this tool. The easiest and most effective way to help us is to spread the word and recommend Netreach to a friend.
 
-Sharing your test results in the results thread is also a great way to help us better judge the state of censorship in different ISPs.
+Sharing your test results in the [results thread](https://github.com/NikolajHansen23/netreach/discussions/) is also a great way to help us better judge the state of censorship in different ISPs.
 
 ## Parameters
 
