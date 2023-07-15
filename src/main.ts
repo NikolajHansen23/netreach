@@ -31,14 +31,12 @@ const loadEnv = (env: Record<string, string>) : Params => {
   return result
 }
 
-// create a new progress bar instance and use shades_classic theme
 const bar1 = new cliProgress.SingleBar({ 
   clearOnComplete: true,
   hideCursor: true,
   format: '[{bar}] {percentage}% | ETA: {eta}s',
 }, cliProgress.Presets.shades_classic);
 
-// start the progress bar with a total value of 200 and start value of 0
 bar1.start(100, 0);
 
 const {Range, Timeout, ConcurrencyStep, RandomCoeff, Full} = loadEnv({...process.env, ...argv})

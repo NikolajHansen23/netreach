@@ -60,6 +60,39 @@ Check here. https://pptr.dev/troubleshooting#chrome-doesnt-launch-on-linux
 
 TBA...
 
+## How to run it the most reliably
+
+It'd be the most accurate if you have the full bandwidth of your internet connection, meaning other devices and applications do not use it.
+
+Also, the higher your RandomCoeff parameter, the more accurate and reliable your results will be.
+
+
+## Why can't I get a perfect 100% score?
+
+Although you might be using a VPN or an uncensored internet, you still might fail to achieve very high scores (e.g., > 95%). The reason for this is multiple:
+
+1- Even though we don't aim to measure the speed of your internet connection, your connection speed does matter, especially if it's very low. (i.e., < 8Mb). Sometimes reaching websites requires downloading a relatively high amount of data which might take longer than the default timeout. If your connection speed is low, you can try out greater timeouts to compensate for the low speed.
+
+2- Other applications are using your processing power (i.e., CPU). Reaching websites requires sending many requests; Doing this repeatedly, as Netreach does, needs a lot of processing power. If other applications are using your CPU while running the test, it might affect the score. Even so, a typical 1-core CPU is powerful enough for this test.
+
+3- Regional websites: Some websites we try to reach sometimes operate with regional restrictions. This is especially true for some Chinese websites. We try to spot these websites and exclude them from our list, but they might still exist.
+
+
+## How to help?
+
+First, thank you for using this tool. The easiest and most effective way to help us is to spread the word and recommend Netreach to a friend.
+
+Sharing your test results in the results thread is also a great way to help us better judge the state of censorship in different ISPs.
+
+## Parameters
+
+RandomCoeff: `RandomCoeff` controls how big our sample size can be. 1 means all websites are included, 0.5 means a random sample of 50% of websites chosen, and so on. You can control this parameter either in the .env file at the root of the project or as an argument:
+
+`npm run start -- --RandomCoeff=0.3`
+
+By default, RandomCoeff is 0.1.
+
+Timeout: `Timeout` specifies how long you would wait at maximum to reach a website. By default, Timeout is 7.5s.
 
 ## Common Errors
 
