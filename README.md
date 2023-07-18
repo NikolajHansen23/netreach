@@ -58,7 +58,10 @@ Check here. https://pptr.dev/troubleshooting#chrome-doesnt-launch-on-linux
 
 ## Docker
 
-TBA...
+Execute docker run:
+```
+docker run -t --rm <docker-image>
+```
 
 ## How to run it the most reliably
 
