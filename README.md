@@ -69,7 +69,10 @@ sudo apt-get install alsa-lib.x86_64 atk.x86_64 cups-libs.x86_64 gtk3.x86_64 ipa
 
 ## Docker
 
-TBA...
+Execute docker run:
+```
+docker run -it --rm <docker-image>
+```
 
 ## How to run it the most reliably
 
