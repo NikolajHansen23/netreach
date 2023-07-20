@@ -19,7 +19,8 @@ export async function performGetRequest(browser: Browser, url: string, timeout: 
 
 async function configurePage(page: Page): Promise<void> {
   // Set the user agent to look like a regular browser
-  const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36';
+  const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36';
+  await page.setJavaScriptEnabled(true)
   await page.setUserAgent(userAgent);
 
   // Set the viewport to emulate a regular browser screen size
